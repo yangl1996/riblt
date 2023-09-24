@@ -4,38 +4,28 @@ import (
 	"math"
 )
 
+// randomMapping generates a sequence of indices indicating the coded symbols
+// that a source symbol should be mapped to. The generator is deterministic,
+// dependent only on its initial PRNG state. When seeded with a random initial
+// PRNG state, the sequence it generates has the following property: index i is
+// present in the generated sequence with probability 1/(1+i/2).
 type randomMapping struct {
 	prng uint64		// PRNG state
 	lastIdx uint64	// the last index the symbol was mapped to
 }
 
-const (
-	minstd_m uint64 = 2147483647
-	minstd_a uint64 = 16807
-)
-
-// degree sequence is 1/(1+idx/2)
+// nextIndex returns the next index from the random mapping generator.
 func (s *randomMapping) nextIndex() uint64 {
 	r := s.prng * 0xda942042e4dd58b5	// can we prove this is fine, assuming the multiplier is coprime to 2^64?
 	s.prng = r
-	// m: minstd_m
-	// x: steps to advance
-	// r: random integer in [0, m)
-	// j: lastIdx
-	// r/m = x(2j+x+3)/((j+x+1)(j+x+2))
-	// TODO: consider taking log on both sides?
-	// x = (-(2j+3) + sqrt((m (2j+3)^2 - r)/(m-r)))/2
-	// x = Ceil(x)
-	//rs := float64(s.lastIdx)*2 + 3  // rs = 2j+3
-    //ls := math.Sqrt((float64(minstd_m) * rs * rs - float64(r)) / float64(minstd_m - r))
-	//s.lastIdx += uint64(math.Ceil((ls - rs)/2))
-	//if s.lastIdx > minstd_m {
-	//	panic("overflow")
-	//}
-	//
-	// As an approximation, we can use
-	// x = (j+1.5)(1/sqrt(1-x/m) - 1)
-	xm := float64(r) / (1 << 64)
-	s.lastIdx += uint64(math.Ceil((float64(s.lastIdx)+1.5)*(1/math.Sqrt(1-xm)-1)))
+	// Calculate the difference from the current index (s.lastIdx) to the next
+	// index. See the paper for details. We use the approximated form
+	//   diff = (1.5+i)((1-u)^(-1/2)-1)
+	// where i is the current index, i.e., lastIdx; u is a number uniformly
+	// sampled from [0, 1). We apply the following optimization. Notice that
+	// our u actually comes from sampling a random uint64 r, and then dividing
+	// it by maxUint64, i.e., 1<<64. So we can replace (1-u)^(-1/2) with
+	//   1<<32 / sqrt(r).
+	s.lastIdx += uint64(math.Ceil((float64(s.lastIdx)+1.5)*((1<<32) / math.Sqrt(float64(r)+1)-1)))
 	return s.lastIdx
 }
