@@ -1,16 +1,21 @@
 package riblt
 
-// TODO: encoder should send conflicting transactions as-is when detected; since it happens very rarely and each pair of peers can use a secret hash key, an adversary cannot forge too many conflicts.
-// TODO: replace siphash with xxhash (or whatever that supports native 4-byte output)
-
+// symbolMapping is a mapping from a source symbol to a coded symbol. The
+// symbols are identified by their indices in codingWindow.
 type symbolMapping struct {
 	sourceIdx int
 	codedIdx int
 }
 
-// TODO: remove the heap?
+// mappingHeap implements a priority queue of symbolMappings. The priority is
+// the codedIdx of a symbolMapping. A smaller value means higher priority.  The
+// first item of the queue is always the item with the highest priority.  The
+// fixHead and fixTail methods should be called after the first or the last
+// item is modified (or inserted, in the case of the tail). The implementation
+// is a partial copy of Heap in Go 1.21.
 type mappingHeap []symbolMapping
 
+// fixHead reestablishes the heap invariant when the first item is modified.
 func (m mappingHeap) fixHead() {
 	curr := 0
 	for {
@@ -30,6 +35,8 @@ func (m mappingHeap) fixHead() {
 	}
 }
 
+// fixTail reestablishes the heap invariant when the last item is modified or
+// just inserted.
 func (m mappingHeap) fixTail() {
 	curr := len(m)-1
 	for {
@@ -42,22 +49,26 @@ func (m mappingHeap) fixTail() {
 	}
 }
 
+// codingWindow is a collection of source symbols and their mappings to coded symbols.
 type codingWindow[T Symbol[T]] struct {
-	symbols []HashedSymbol[T]
-	mappings []randomMapping
-	queue mappingHeap
-	nextIdx int
+	symbols []HashedSymbol[T]	// source symbols
+	mappings []randomMapping	// mapping generators of the source symbols
+	queue mappingHeap			// priority queue of source symbols by the next coded symbols they are mapped to
+	nextIdx int					// index of the next coded symbol to be generated
 }
 
+// addSymbol inserts a symbol to the codingWindow.
 func (e *codingWindow[T]) addSymbol(t T) {
 	th := HashedSymbol[T]{t, t.Hash()}
 	e.addHashedSymbol(th)
 }
 
+// addHashedSymbol inserts a HashedSymbol to the codingWindow.
 func (e *codingWindow[T]) addHashedSymbol(t HashedSymbol[T]) {
 	e.addHashedSymbolWithMapping(t, randomMapping{t.Hash , 0})
 }
 
+// addHashedSymbolWithMapping inserts a HashedSymbol and the current state of its mapping generator to the codingWindow.
 func (e *codingWindow[T]) addHashedSymbolWithMapping(t HashedSymbol[T], m randomMapping) {
 	e.symbols = append(e.symbols, t)
 	e.mappings = append(e.mappings, m)
@@ -65,6 +76,7 @@ func (e *codingWindow[T]) addHashedSymbolWithMapping(t HashedSymbol[T], m random
 	e.queue.fixTail()
 }
 
+// applyWindow maps the source symbols to the next coded symbol they should be mapped to, provided as cw. The parameter direction controls how the counter of cw should be modified.
 func (e *codingWindow[T]) applyWindow(cw CodedSymbol[T], direction int64) CodedSymbol[T] {
 	if len(e.queue) == 0 {
 		e.nextIdx += 1
@@ -81,6 +93,7 @@ func (e *codingWindow[T]) applyWindow(cw CodedSymbol[T], direction int64) CodedS
 	return cw
 }
 
+// reset clears a codingWindow.
 func (e *codingWindow[T]) reset() {
 	if len(e.symbols) != 0 {
 		e.symbols = e.symbols[:0]
@@ -94,20 +107,25 @@ func (e *codingWindow[T]) reset() {
 	e.nextIdx = 0
 }
 
+// Encoder is an incremental encoder of Rateless IBLT.
 type Encoder[T Symbol[T]] codingWindow[T]
 
+// AddSymbol adds a symbol to the encoder.
 func (e *Encoder[T]) AddSymbol(s T) {
 	(*codingWindow[T])(e).addSymbol(s)
 }
 
+// AddHashedSymbol adds a HashedSymbol to the encoder.
 func (e *Encoder[T]) AddHashedSymbol(s HashedSymbol[T]) {
 	(*codingWindow[T])(e).addHashedSymbol(s)
 }
 
+// ProduceNextCodedSymbol returns the next coded symbol the encoder produces.
 func (e *Encoder[T]) ProduceNextCodedSymbol() CodedSymbol[T] {
 	return (*codingWindow[T])(e).applyWindow(CodedSymbol[T]{}, add)
 }
 
+// Reset clears the encoder.
 func (e *Encoder[T]) Reset() {
 	(*codingWindow[T])(e).reset()
 }
