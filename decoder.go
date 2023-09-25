@@ -1,13 +1,13 @@
 package riblt
 
 type Decoder[T Symbol[T]] struct {
-	cs []CodedSymbol[T]		// coded symbols received so far
-	isDirty []bool			// if a coded symbol is in the dirty list
-	local codingWindow[T]	// set of source symbols that are exclusive to the decoder
-	window codingWindow[T]	// set of source symbols that the decoder initially has
-	remote codingWindow[T]	// set of source symbols that are exclusive to the encoder
-	dirty []int				// indices of coded symbols that have degrees -1, 0, or 1, of which we should examine the hashes
-	decoded int				// number of coded symbols that are decoded
+	cs      []CodedSymbol[T] // coded symbols received so far
+	isDirty []bool           // if a coded symbol is in the dirty list
+	local   codingWindow[T]  // set of source symbols that are exclusive to the decoder
+	window  codingWindow[T]  // set of source symbols that the decoder initially has
+	remote  codingWindow[T]  // set of source symbols that are exclusive to the encoder
+	dirty   []int            // indices of coded symbols that have degrees -1, 0, or 1, of which we should examine the hashes
+	decoded int              // number of coded symbols that are decoded
 }
 
 func (d *Decoder[T]) Decoded() bool {
@@ -48,7 +48,7 @@ func (d *Decoder[T]) AddCodedSymbol(c CodedSymbol[T]) {
 }
 
 func (d *Decoder[T]) applyNewSymbol(t HashedSymbol[T], direction int64) randomMapping {
-	m := randomMapping{t.Hash , 0}
+	m := randomMapping{t.Hash, 0}
 	for int(m.lastIdx) < len(d.cs) {
 		cidx := int(m.lastIdx)
 		d.cs[cidx] = d.cs[cidx].apply(t, direction)
@@ -94,9 +94,9 @@ func (d *Decoder[T]) TryDecode() {
 			if c.Hash == 0 {
 				d.decoded += 1
 			}
-		// One may want to add a panic here when coded symbol is not of degree
-		// 1, -1 or 0, but this may happen when a dirty coded symbol is
-		// operated on before its turn.
+			// One may want to add a panic here when coded symbol is not of degree
+			// 1, -1 or 0, but this may happen when a dirty coded symbol is
+			// operated on before its turn.
 		}
 		d.isDirty[cidx] = false
 	}
@@ -105,7 +105,7 @@ func (d *Decoder[T]) TryDecode() {
 
 func (d *Decoder[T]) Reset() {
 	if len(d.cs) != 0 {
-		d.cs= d.cs[:0]
+		d.cs = d.cs[:0]
 	}
 	if len(d.dirty) != 0 {
 		d.dirty = d.dirty[:0]
@@ -118,4 +118,3 @@ func (d *Decoder[T]) Reset() {
 	d.window.reset()
 	d.decoded = 0
 }
-

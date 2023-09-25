@@ -2,9 +2,9 @@ package riblt
 
 import (
 	"encoding/binary"
+	"github.com/dchest/siphash"
 	"math"
 	"testing"
-	"github.com/dchest/siphash"
 )
 
 const testSymbolSize = 256
@@ -111,8 +111,8 @@ func BenchmarkEncoding(b *testing.B) {
 		s := newTestSymbol(uint64(j))
 		data = append(data, s)
 	}
-    b.ResetTimer()
-    for i := 0; i < b.N; i++ {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
 		enc.Reset()
 		for j := 0; j < n; j++ {
 			enc.AddSymbol(data[j])
@@ -120,5 +120,5 @@ func BenchmarkEncoding(b *testing.B) {
 		for j := 0; j < m; j++ {
 			enc.ProduceNextCodedSymbol()
 		}
-    }
+	}
 }

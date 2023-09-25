@@ -10,13 +10,13 @@ import (
 // PRNG state, the sequence it generates has the following property: index i is
 // present in the generated sequence with probability 1/(1+i/2).
 type randomMapping struct {
-	prng uint64		// PRNG state
-	lastIdx uint64	// the last index the symbol was mapped to
+	prng    uint64 // PRNG state
+	lastIdx uint64 // the last index the symbol was mapped to
 }
 
 // nextIndex returns the next index from the random mapping generator.
 func (s *randomMapping) nextIndex() uint64 {
-	r := s.prng * 0xda942042e4dd58b5	// can we prove this is fine, assuming the multiplier is coprime to 2^64?
+	r := s.prng * 0xda942042e4dd58b5 // can we prove this is fine, assuming the multiplier is coprime to 2^64?
 	s.prng = r
 	// Calculate the difference from the current index (s.lastIdx) to the next
 	// index. See the paper for details. We use the approximated form
@@ -26,6 +26,6 @@ func (s *randomMapping) nextIndex() uint64 {
 	// our u actually comes from sampling a random uint64 r, and then dividing
 	// it by maxUint64, i.e., 1<<64. So we can replace (1-u)^(-1/2) with
 	//   1<<32 / sqrt(r).
-	s.lastIdx += uint64(math.Ceil((float64(s.lastIdx)+1.5)*((1<<32) / math.Sqrt(float64(r)+1)-1)))
+	s.lastIdx += uint64(math.Ceil((float64(s.lastIdx) + 1.5) * ((1<<32)/math.Sqrt(float64(r)+1) - 1)))
 	return s.lastIdx
 }

@@ -14,17 +14,17 @@ type Symbol[T any] interface {
 // HashedSymbol is the bundle of a symbol and its hash.
 type HashedSymbol[T Symbol[T]] struct {
 	Symbol T
-	Hash uint64
+	Hash   uint64
 }
 
 // CodedSymbol is a coded symbol produced by a Rateless IBLT encoder.
 type CodedSymbol[T Symbol[T]] struct {
 	HashedSymbol[T]
-    Count int64
+	Count int64
 }
 
 const (
-	add = 1
+	add    = 1
 	remove = -1
 )
 

@@ -4,7 +4,7 @@ package riblt
 // symbols are identified by their indices in codingWindow.
 type symbolMapping struct {
 	sourceIdx int
-	codedIdx int
+	codedIdx  int
 }
 
 // mappingHeap implements a priority queue of symbolMappings. The priority is
@@ -19,7 +19,7 @@ type mappingHeap []symbolMapping
 func (m mappingHeap) fixHead() {
 	curr := 0
 	for {
-		child := curr * 2 + 1
+		child := curr*2 + 1
 		if child >= len(m) {
 			// no left child
 			break
@@ -38,7 +38,7 @@ func (m mappingHeap) fixHead() {
 // fixTail reestablishes the heap invariant when the last item is modified or
 // just inserted.
 func (m mappingHeap) fixTail() {
-	curr := len(m)-1
+	curr := len(m) - 1
 	for {
 		parent := (curr - 1) / 2
 		if curr == parent || m[parent].codedIdx <= m[curr].codedIdx {
@@ -51,10 +51,10 @@ func (m mappingHeap) fixTail() {
 
 // codingWindow is a collection of source symbols and their mappings to coded symbols.
 type codingWindow[T Symbol[T]] struct {
-	symbols []HashedSymbol[T]	// source symbols
-	mappings []randomMapping	// mapping generators of the source symbols
-	queue mappingHeap			// priority queue of source symbols by the next coded symbols they are mapped to
-	nextIdx int					// index of the next coded symbol to be generated
+	symbols  []HashedSymbol[T] // source symbols
+	mappings []randomMapping   // mapping generators of the source symbols
+	queue    mappingHeap       // priority queue of source symbols by the next coded symbols they are mapped to
+	nextIdx  int               // index of the next coded symbol to be generated
 }
 
 // addSymbol inserts a symbol to the codingWindow.
@@ -65,14 +65,14 @@ func (e *codingWindow[T]) addSymbol(t T) {
 
 // addHashedSymbol inserts a HashedSymbol to the codingWindow.
 func (e *codingWindow[T]) addHashedSymbol(t HashedSymbol[T]) {
-	e.addHashedSymbolWithMapping(t, randomMapping{t.Hash , 0})
+	e.addHashedSymbolWithMapping(t, randomMapping{t.Hash, 0})
 }
 
 // addHashedSymbolWithMapping inserts a HashedSymbol and the current state of its mapping generator to the codingWindow.
 func (e *codingWindow[T]) addHashedSymbolWithMapping(t HashedSymbol[T], m randomMapping) {
 	e.symbols = append(e.symbols, t)
 	e.mappings = append(e.mappings, m)
-	e.queue = append(e.queue, symbolMapping{len(e.symbols)-1, int(m.lastIdx)})
+	e.queue = append(e.queue, symbolMapping{len(e.symbols) - 1, int(m.lastIdx)})
 	e.queue.fixTail()
 }
 
@@ -131,4 +131,3 @@ func (e *Encoder[T]) ProduceNextCodedSymbol() CodedSymbol[T] {
 func (e *Encoder[T]) Reset() {
 	(*codingWindow[T])(e).reset()
 }
-
