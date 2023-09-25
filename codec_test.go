@@ -56,9 +56,9 @@ func TestEncodeAndDecode(t *testing.T) {
 	remote := make(map[uint64]struct{})
 
 	var nextId uint64
-	nlocal := 5000
-	nremote := 5000
-	ncommon := 10000
+	nlocal := 50000
+	nremote := 50000
+	ncommon := 100000
 	for i := 0; i < nlocal; i++ {
 		s := newTestSymbol(nextId)
 		nextId += 1
