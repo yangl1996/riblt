@@ -6,9 +6,9 @@ func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
 	m := randomMapping{t.Hash, 0}
 	for int(m.lastIdx) < len(s) {
 		idx := m.lastIdx
-		s[idx].sum = s[idx].sum.XOR(t.Symbol)
-		s[idx].count += 1
-		s[idx].checksum ^= t.Hash
+		s[idx].Symbol = s[idx].Symbol.XOR(t.Symbol)
+		s[idx].Count += 1
+		s[idx].Hash ^= t.Hash
 		m.nextIndex()
 	}
 }
@@ -24,9 +24,9 @@ func (s Sketch[T]) Subtract(s2 Sketch[T]) Sketch[T] {
 	}
 
 	for i := range s {
-		s[i].sum = s[i].sum.XOR(s2[i].sum)
-		s[i].count = s[i].count - s2[i].count
-		s[i].checksum = s[i].checksum ^ s2[i].checksum
+		s[i].Symbol = s[i].Symbol.XOR(s2[i].Symbol)
+		s[i].Count = s[i].Count - s2[i].Count
+		s[i].Hash ^= s2[i].Hash
 	}
 	return s
 }

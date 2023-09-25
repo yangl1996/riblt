@@ -11,8 +11,8 @@ type symbolMapping struct {
 // the codedIdx of a symbolMapping. A smaller value means higher priority.  The
 // first item of the queue is always the item with the highest priority.  The
 // fixHead and fixTail methods should be called after the first or the last
-// item is modified (or inserted, in the case of the tail). The implementation
-// is a partial copy of Heap in Go 1.21.
+// item is modified (or inserted, in the case of the tail), respectively. The
+// implementation is a partial copy of container/heap in Go 1.21.
 type mappingHeap []symbolMapping
 
 // fixHead reestablishes the heap invariant when the first item is modified.
@@ -76,7 +76,9 @@ func (e *codingWindow[T]) addHashedSymbolWithMapping(t HashedSymbol[T], m random
 	e.queue.fixTail()
 }
 
-// applyWindow maps the source symbols to the next coded symbol they should be mapped to, provided as cw. The parameter direction controls how the counter of cw should be modified.
+// applyWindow maps the source symbols to the next coded symbol they should be
+// mapped to, given as cw. The parameter direction controls how the counter
+// of cw should be modified.
 func (e *codingWindow[T]) applyWindow(cw CodedSymbol[T], direction int64) CodedSymbol[T] {
 	if len(e.queue) == 0 {
 		e.nextIdx += 1

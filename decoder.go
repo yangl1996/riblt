@@ -40,12 +40,12 @@ func (d *Decoder[T]) AddCodedSymbol(c CodedSymbol[T]) {
 	c = d.window.applyWindow(c, remove)
 	c = d.remote.applyWindow(c, remove)
 	c = d.local.applyWindow(c, add)
-	if c.count == 0 && c.checksum == 0 {
+	if c.Count == 0 && c.Hash == 0 {
 		// still insert the codeword in case a symbol added later causes it to become dirty
 		d.cs = append(d.cs, receivedSymbol[T]{c, false})
 		return
 	} else {
-		if c.count >= -1 && c.count <= 1 {
+		if c.Count == -1 || c.Count == 1 {
 			d.cs = append(d.cs, receivedSymbol[T]{c, true})
 			d.dirty = append(d.dirty, len(d.cs)-1)
 		} else {
@@ -62,7 +62,7 @@ func (d *Decoder[T]) applyNewSymbol(t HashedSymbol[T], direction int64) randomMa
 		cidx := int(m.lastIdx)
 		d.cs[cidx].CodedSymbol = d.cs[cidx].apply(t, direction)
 		c := d.cs[cidx]
-		if (!c.dirty) && c.count >= -1 && c.count <= 1 {
+		if (!c.dirty) && c.Count >= -1 && c.Count <= 1 {
 			d.cs[cidx].dirty = true
 			d.dirty = append(d.dirty, cidx)
 		}
@@ -75,34 +75,37 @@ func (d *Decoder[T]) TryDecode() {
 	for didx := 0; didx < len(d.dirty); didx += 1 {
 		cidx := d.dirty[didx]
 		c := d.cs[cidx]
-		switch c.count {
+		switch c.Count {
 		case 1:
-			h := c.sum.Hash()
-			if h == c.checksum {
+			h := c.Symbol.Hash()
+			if h == c.Hash {
+				// allocate a symbol and then XOR with the sum, so that we are
+				// guaranted to copy the sum whether or not the symbol
+				// interface is implemented as a pointer
 				ns := HashedSymbol[T]{}
-				ns.Symbol = ns.Symbol.XOR(c.sum)	// force duplicate the symbol data
+				ns.Symbol = ns.Symbol.XOR(c.Symbol)
 				ns.Hash = h
 				m := d.applyNewSymbol(ns, remove)
 				d.remote.addHashedSymbolWithMapping(ns, m)
 				d.pending -= 1
 			}
 		case -1:
-			h := c.sum.Hash()
-			if h == c.checksum {
+			h := c.Symbol.Hash()
+			if h == c.Hash {
 				ns := HashedSymbol[T]{}
-				ns.Symbol = ns.Symbol.XOR(c.sum)	// force duplicate the symbol data
+				ns.Symbol = ns.Symbol.XOR(c.Symbol)
 				ns.Hash = h
 				m := d.applyNewSymbol(ns, add)
 				d.local.addHashedSymbolWithMapping(ns, m)
 				d.pending -= 1
 			}
 		case 0:
-			if c.checksum == 0 {
+			if c.Hash == 0 {
 				d.pending -= 1
 			}
-		// one may want to add a panic here when coded symbol is not of
-		// degree 1, -1 or 0, but this may be violated when a dirty coded symbol
-		// is peeled before its turn
+		// One may want to add a panic here when coded symbol is not of degree
+		// 1, -1 or 0, but this may happen when a dirty coded symbol is
+		// operated on before its turn.
 		}
 		d.cs[cidx].dirty = false
 	}
