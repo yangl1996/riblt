@@ -3,7 +3,6 @@ package riblt
 import (
 	"encoding/binary"
 	"github.com/dchest/siphash"
-	"math"
 	"testing"
 )
 
@@ -29,24 +28,6 @@ func newTestSymbol(i uint64) *testSymbol {
 	data := testSymbol{}
 	binary.LittleEndian.PutUint64(data[0:8], i)
 	return &data
-}
-
-type testDegreeSequence struct {
-	count int
-}
-
-func (t *testDegreeSequence) Reset() {
-	t.count = 0
-}
-
-func (t *testDegreeSequence) NextThreshold() uint64 {
-	var th uint64
-	th = math.MaxUint64
-	if t.count != 0 {
-		th = uint64(float64(th) / (1 + float64(t.count)/2))
-	}
-	t.count += 1
-	return th
 }
 
 func TestEncodeAndDecode(t *testing.T) {

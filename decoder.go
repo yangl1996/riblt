@@ -77,7 +77,7 @@ func (d *Decoder[T]) applyNewSymbol(t HashedSymbol[T], direction int64) randomMa
 		// decodable list. So, we do not insert degree-0 symbols to avoid
 		// duplicates. On the other hand, it is fine that we insert all
 		// degree-1 or -1 decodable symbols, because we only see them in such
-		// state once. 
+		// state once.
 		if (d.cs[cidx].Count == -1 || d.cs[cidx].Count == 1) && d.cs[cidx].Hash == d.cs[cidx].Symbol.Hash() {
 			d.decodable = append(d.decodable, cidx)
 		}
