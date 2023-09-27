@@ -15,7 +15,7 @@ func BenchmarkSketchAddSymbol(b *testing.B) {
 		{"10000000", 10000000},
 	}
 	for _, bench := range benches {
-		s := make(Sketch[*testSymbol], bench.size)
+		s := make(Sketch[testSymbol], bench.size)
 		b.Run(bench.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				s.AddSymbol(newTestSymbol(uint64(i)))
@@ -26,6 +26,7 @@ func BenchmarkSketchAddSymbol(b *testing.B) {
 
 func BenchmarkSHA256(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		sha256.Sum256(newTestSymbol(uint64(i))[:])
+		t := newTestSymbol(uint64(i))
+		sha256.Sum256(t[:])
 	}
 }

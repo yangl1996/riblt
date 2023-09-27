@@ -4,35 +4,35 @@ import (
 	"encoding/binary"
 	"github.com/dchest/siphash"
 	"testing"
+	"unsafe"
 )
 
-const testSymbolSize = 256
+const testSymbolSize = 8
 
 type testSymbol [testSymbolSize]byte
 
-func (d *testSymbol) XOR(t2 *testSymbol) *testSymbol {
-	if d == nil {
-		d = &testSymbol{}
-	}
-	for i := 0; i < testSymbolSize; i++ {
-		d[i] ^= t2[i]
+func (d testSymbol) XOR(t2 testSymbol) testSymbol {
+	dw := (*[testSymbolSize/8]uint64)(unsafe.Pointer(&d))
+	t2w := (*[testSymbolSize/8]uint64)(unsafe.Pointer(&t2))
+	for i := 0; i < testSymbolSize/8; i++ {
+		(*dw)[i] ^= (*t2w)[i]
 	}
 	return d
 }
 
-func (d *testSymbol) Hash() uint64 {
+func (d testSymbol) Hash() uint64 {
 	return siphash.Hash(567, 890, d[:])
 }
 
-func newTestSymbol(i uint64) *testSymbol {
+func newTestSymbol(i uint64) testSymbol {
 	data := testSymbol{}
 	binary.LittleEndian.PutUint64(data[0:8], i)
-	return &data
+	return data
 }
 
 func TestEncodeAndDecode(t *testing.T) {
-	enc := Encoder[*testSymbol]{}
-	dec := Decoder[*testSymbol]{}
+	enc := Encoder[testSymbol]{}
+	dec := Decoder[testSymbol]{}
 	local := make(map[uint64]struct{})
 	remote := make(map[uint64]struct{})
 
@@ -86,8 +86,8 @@ func TestEncodeAndDecode(t *testing.T) {
 func BenchmarkEncoding(b *testing.B) {
 	n := 10000
 	m := 15000
-	enc := Encoder[*testSymbol]{}
-	data := []*testSymbol{}
+	enc := Encoder[testSymbol]{}
+	data := []testSymbol{}
 	for j := 0; j < n; j++ {
 		s := newTestSymbol(uint64(j))
 		data = append(data, s)
