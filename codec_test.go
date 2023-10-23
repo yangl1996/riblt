@@ -7,7 +7,7 @@ import (
 	"unsafe"
 )
 
-const testSymbolSize = 8
+const testSymbolSize = 64
 
 type testSymbol [testSymbolSize]byte
 
