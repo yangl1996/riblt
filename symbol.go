@@ -1,3 +1,5 @@
+// Package riblt implements Rateless Invertible Bloom Lookup Tables (Rateless
+// IBLTs), rateless codes that reconcile set differences.
 package riblt
 
 // Symbol is the interface that source symbols should implement. It specifies a
