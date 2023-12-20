@@ -27,10 +27,9 @@ func (t item) Hash() uint64 {
 func Example() {
 	// Alice and Bob each holds a set of items. Bob wishes to know the items
 	// that Alice has but he does not, as well as items that he has but Alice
-	// does not. Their sets are mostly the same, but Alice has an item that Bob
-	// does not have, and vice versa.
-	alice := []item{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	bob :=   []item{1,    3, 4, 5, 6, 7, 8, 9, 10, 11}
+	// does not. Their sets are mostly the same.
+	alice := []item{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}		// only Alice has 2
+	bob :=   []item{1,    3, 4, 5, 6, 7, 8, 9, 10, 11}	// only Bob has 11
 
 	// Alice creates an encoder and gives it her set.
 	enc := riblt.Encoder[item]{}
