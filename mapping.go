@@ -6,17 +6,19 @@ import (
 
 // randomMapping generates a sequence of indices indicating the coded symbols
 // that a source symbol should be mapped to. The generator is deterministic,
-// dependent only on its initial PRNG state. When seeded with a random initial
-// PRNG state, the sequence it generates has the following property: index i is
-// present in the generated sequence with probability 1/(1+i/2).
+// dependent only on its initial PRNG state. When seeded with a uniformly
+// random initial PRNG state, index i will be present in the generated sequence
+// with probability 1/(1+i/2), for any non-negative i.
 type randomMapping struct {
 	prng    uint64 // PRNG state
 	lastIdx uint64 // the last index the symbol was mapped to
 }
 
-// nextIndex returns the next index from the random mapping generator.
+// nextIndex returns the next index in the sequence.
 func (s *randomMapping) nextIndex() uint64 {
-	r := s.prng * 0xda942042e4dd58b5 // can we prove this is fine, assuming the multiplier is coprime to 2^64?
+	// Update the PRNG. TODO: prove that the following update rule gives us
+	// high quality randomness, assuming the multiplier is coprime to 2^64.
+	r := s.prng * 0xda942042e4dd58b5 
 	s.prng = r
 	// Calculate the difference from the current index (s.lastIdx) to the next
 	// index. See the paper for details. We use the approximated form

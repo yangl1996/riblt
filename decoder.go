@@ -100,8 +100,8 @@ func (d *Decoder[T]) TryDecode() {
 		switch c.Count {
 		case 1:
 			// allocate a symbol and then XOR with the sum, so that we are
-			// guaranted to copy the sum whether or not the symbol
-			// interface is implemented as a pointer
+			// guaranted to copy the sum whether or not the symbol interface is
+			// implemented as a pointer
 			ns := HashedSymbol[T]{}
 			ns.Symbol = ns.Symbol.XOR(c.Symbol)
 			ns.Hash = c.Hash
