@@ -1,12 +1,12 @@
 package riblt
 
 import (
-	"testing"
 	"crypto/sha256"
+	"testing"
 )
 
 func BenchmarkSketchAddSymbol(b *testing.B) {
-	benches := []struct{
+	benches := []struct {
 		name string
 		size int
 	}{

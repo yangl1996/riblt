@@ -5,10 +5,10 @@ package riblt
 // Symbol is the interface that source symbols should implement. It specifies a
 // Boolean group, where T (or its subset) is the underlying set, and ^ is the
 // group operation. It should satisfy the following properties:
-//   1. For all a, b, c in the group, (a ^ b) ^ c = a ^ (b ^ c).
-//   2. Let e be the default value of T. For every a in the group, e ^ a = a
-//      and a ^ e = a.
-//   3. For every a in the group, a ^ a = e.
+//  1. For all a, b, c in the group, (a ^ b) ^ c = a ^ (b ^ c).
+//  2. Let e be the default value of T. For every a in the group, e ^ a = a
+//     and a ^ e = a.
+//  3. For every a in the group, a ^ a = e.
 type Symbol[T any] interface {
 	// XOR returns t ^ t2, where t is the method receiver. XOR is allowed to
 	// modify the method receiver. Although the method is called XOR (because

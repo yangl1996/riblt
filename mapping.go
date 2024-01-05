@@ -18,7 +18,7 @@ type randomMapping struct {
 func (s *randomMapping) nextIndex() uint64 {
 	// Update the PRNG. TODO: prove that the following update rule gives us
 	// high quality randomness, assuming the multiplier is coprime to 2^64.
-	r := s.prng * 0xda942042e4dd58b5 
+	r := s.prng * 0xda942042e4dd58b5
 	s.prng = r
 	// Calculate the difference from the current index (s.lastIdx) to the next
 	// index. See the paper for details. We use the approximated form

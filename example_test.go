@@ -2,9 +2,9 @@ package riblt_test
 
 import (
 	"encoding/binary"
+	"fmt"
 	"github.com/dchest/siphash"
 	"github.com/yangl1996/riblt"
-	"fmt"
 )
 
 // item is the type of set elements we will reconcile. It implements
@@ -28,8 +28,8 @@ func Example() {
 	// Alice and Bob each holds a set of items. Bob wishes to know the items
 	// that Alice has but he does not, as well as items that he has but Alice
 	// does not. Their sets are mostly the same.
-	alice := []item{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}		// only Alice has 2
-	bob :=   []item{1,    3, 4, 5, 6, 7, 8, 9, 10, 11}	// only Bob has 11
+	alice := []item{1, 2, 3, 4, 5, 6, 7, 8, 9, 10} // only Alice has 2
+	bob := []item{1, 3, 4, 5, 6, 7, 8, 9, 10, 11}  // only Bob has 11
 
 	// Alice creates an encoder and gives it her set.
 	enc := riblt.Encoder[item]{}
@@ -63,4 +63,3 @@ func Example() {
 	// 11 is exclusive to Bob
 	// 2 coded symbols sent
 }
-

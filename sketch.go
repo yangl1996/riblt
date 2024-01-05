@@ -40,9 +40,10 @@ func (s Sketch[T]) Subtract(s2 Sketch[T]) {
 }
 
 // Decode tries to decode s, where s can be one of the following
-//   1. A sketch of set S.
-//   2. Content of s after calling s.Subtract(s2), where s is a sketch of set
-//      S, and s2 is a sketch of set S2.
+//  1. A sketch of set S.
+//  2. Content of s after calling s.Subtract(s2), where s is a sketch of set
+//     S, and s2 is a sketch of set S2.
+//
 // When successful, fwd contains all source symbols in S in case 1, or S \ S2
 // in case 2 (\ is the set subtraction operation). rev is empty in case 1, or
 // S2 \ S in case 2. succ is true. When unsuccessful, fwd and rev are

@@ -12,8 +12,8 @@ const testSymbolSize = 64
 type testSymbol [testSymbolSize]byte
 
 func (d testSymbol) XOR(t2 testSymbol) testSymbol {
-	dw := (*[testSymbolSize/8]uint64)(unsafe.Pointer(&d))
-	t2w := (*[testSymbolSize/8]uint64)(unsafe.Pointer(&t2))
+	dw := (*[testSymbolSize / 8]uint64)(unsafe.Pointer(&d))
+	t2w := (*[testSymbolSize / 8]uint64)(unsafe.Pointer(&t2))
 	for i := 0; i < testSymbolSize/8; i++ {
 		(*dw)[i] ^= (*t2w)[i]
 	}
