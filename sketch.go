@@ -5,8 +5,6 @@ type Sketch[T Symbol[T]] []CodedSymbol[T]
 
 // AddHashedSymbol efficiently updates s when t is added to the set.
 func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
-	// TODO: support removing symbols; just decrement instead of increment the
-	// counter
 	m := randomMapping{t.Hash, 0}
 	for int(m.lastIdx) < len(s) {
 		idx := m.lastIdx
@@ -17,10 +15,28 @@ func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
 	}
 }
 
+// RemoveHashedSymbol efficiently updates s when t is removed from the set.
+func (s Sketch[T]) RemoveHashedSymbol(t HashedSymbol[T]) {
+	m := randomMapping{t.Hash, 0}
+	for int(m.lastIdx) < len(s) {
+		idx := m.lastIdx
+		s[idx].Symbol = s[idx].Symbol.XOR(t.Symbol)
+		s[idx].Count -= 1
+		s[idx].Hash ^= t.Hash
+		m.nextIndex()
+	}
+}
+
 // AddSymbol efficiently updates s when t is added to the set.
 func (s Sketch[T]) AddSymbol(t T) {
 	hs := HashedSymbol[T]{t, t.Hash()}
 	s.AddHashedSymbol(hs)
+}
+
+// RemoveSymbol efficiently updates s when t is removed from the set.
+func (s Sketch[T]) RemoveSymbol(t T) {
+	hs := HashedSymbol[T]{t, t.Hash()}
+	s.RemoveHashedSymbol(hs)
 }
 
 // Subtract subtracts s2 from s, modifying s in place. s and s2 must be of
