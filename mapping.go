@@ -14,6 +14,8 @@ type randomMapping struct {
 	lastIdx uint64 // the last index the symbol was mapped to
 }
 
+var Alpha = 0.64
+
 // nextIndex returns the next index in the sequence.
 func (s *randomMapping) nextIndex() uint64 {
 	// Update the PRNG. TODO: prove that the following update rule gives us
@@ -28,6 +30,6 @@ func (s *randomMapping) nextIndex() uint64 {
 	// our u actually comes from sampling a random uint64 r, and then dividing
 	// it by maxUint64, i.e., 1<<64. So we can replace (1-u)^(-1/2) with
 	//   1<<32 / sqrt(r).
-	s.lastIdx += uint64(math.Ceil((float64(s.lastIdx) + 1.5) * ((1<<32)/math.Sqrt(float64(r)+1) - 1)))
+	s.lastIdx += uint64(math.Ceil((float64(s.lastIdx) + 1) * (math.Pow(float64(r)/(1<<64), -Alpha) - 1)))
 	return s.lastIdx
 }
