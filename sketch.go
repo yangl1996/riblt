@@ -5,7 +5,7 @@ type Sketch[T Symbol[T]] []CodedSymbol[T]
 
 // AddHashedSymbol efficiently updates s when t is added to the set.
 func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
-	m := randomMapping{t.Hash, 0}
+	m := randomMapping{prng: t.Hash}
 	for int(m.lastIdx) < len(s) {
 		idx := m.lastIdx
 		s[idx].Symbol = s[idx].Symbol.XOR(t.Symbol)
@@ -17,7 +17,7 @@ func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
 
 // RemoveHashedSymbol efficiently updates s when t is removed from the set.
 func (s Sketch[T]) RemoveHashedSymbol(t HashedSymbol[T]) {
-	m := randomMapping{t.Hash, 0}
+	m := randomMapping{prng: t.Hash}
 	for int(m.lastIdx) < len(s) {
 		idx := m.lastIdx
 		s[idx].Symbol = s[idx].Symbol.XOR(t.Symbol)
