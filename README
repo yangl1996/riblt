@@ -12,3 +12,6 @@ the difference goes to infinitely large.
 
 A good starting point is example_test.go, a self-contained example of using
 this package to synchronize two sets of integers.
+
+Rust implementation available at:
+https://github.com/Intersubjective/riblt-rust
