@@ -15,8 +15,8 @@ type randomMapping struct {
 	alpha float64
 }
 
-var Alpha = []float64{0.25, 0.5, 1.0}
-var Prob = []float64{0.2, 0.78, 1.0}
+var Prob = []float64{0.18, 0.74, 1}
+var Alpha= []float64{0.11, 0.68, 0.82}
 
 // nextIndex returns the next index in the sequence.
 func (s *randomMapping) nextIndex() uint64 {
