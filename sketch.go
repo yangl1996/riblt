@@ -1,9 +1,13 @@
 package riblt
 
 // Sketch is a prefix of the coded symbol sequence for a set of source symbols.
+// When generating a prefix of predetermined length, compared to generating the
+// prefix incrementally using an Encoder, it is more efficient to use Sketch.
+// Sketch also allows inserting or deleting source symbols from the set after
+// it has been created.
 type Sketch[T Symbol[T]] []CodedSymbol[T]
 
-// AddHashedSymbol efficiently updates s when t is added to the set.
+// AddHashedSymbol inserts source symbol t to the set of which s is a sketch.
 func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
 	m := randomMapping{t.Hash, 0}
 	for int(m.lastIdx) < len(s) {
@@ -15,7 +19,8 @@ func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
 	}
 }
 
-// RemoveHashedSymbol efficiently updates s when t is removed from the set.
+// RemoveHashedSymbol deletes source symbol t from the set of which s is a
+// sketch.
 func (s Sketch[T]) RemoveHashedSymbol(t HashedSymbol[T]) {
 	m := randomMapping{t.Hash, 0}
 	for int(m.lastIdx) < len(s) {
@@ -27,19 +32,19 @@ func (s Sketch[T]) RemoveHashedSymbol(t HashedSymbol[T]) {
 	}
 }
 
-// AddSymbol efficiently updates s when t is added to the set.
+// AddSymbol inserts source symbol t to the set of which s is a sketch.
 func (s Sketch[T]) AddSymbol(t T) {
 	hs := HashedSymbol[T]{t, t.Hash()}
 	s.AddHashedSymbol(hs)
 }
 
-// RemoveSymbol efficiently updates s when t is removed from the set.
+// RemoveSymbol deletes source symbol t from the set of which s is a sketch.
 func (s Sketch[T]) RemoveSymbol(t T) {
 	hs := HashedSymbol[T]{t, t.Hash()}
 	s.RemoveHashedSymbol(hs)
 }
 
-// Subtract subtracts s2 from s, modifying s in place. s and s2 must be of
+// Subtract subtracts s2 from s by modifying s in place. s and s2 must be of
 // equal length. If s is a sketch of set S and s2 is a sketch of set S2, then
 // the result is a sketch of the symmetric difference between S and S2.
 func (s Sketch[T]) Subtract(s2 Sketch[T]) {
@@ -60,10 +65,9 @@ func (s Sketch[T]) Subtract(s2 Sketch[T]) {
 //  2. Content of s after calling s.Subtract(s2), where s is a sketch of set
 //     S, and s2 is a sketch of set S2.
 //
-// When successful, fwd contains all source symbols in S in case 1, or S \ S2
-// in case 2 (\ is the set subtraction operation). rev is empty in case 1, or
-// S2 \ S in case 2. succ is true. When unsuccessful, fwd and rev are
-// undefined, and succ is false.
+// When successful, indicated by succ being true, fwd contains all source
+// symbols in S in case 1, or S \ S2 in case 2 (\ is the set subtraction
+// operation). rev is empty in case 1, or S2 \ S in case 2.
 func (s Sketch[T]) Decode() (fwd []HashedSymbol[T], rev []HashedSymbol[T], succ bool) {
 	dec := Decoder[T]{}
 	for _, c := range s {

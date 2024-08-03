@@ -1,22 +1,34 @@
 Implementation of Rateless Invertible Bloom Lookup Tables (Rateless IBLTs), as
 proposed in paper Practical Rateless Set Reconciliation by Lei Yang, Yossi
-Gilad, and Mohammad Alizadeh. Preprint available at
-https://arxiv.org/abs/2402.02668.
+Gilad, and Mohammad Alizadeh, which appeared in ACM SIGCOMM 2024. Full text is
+available at https://doi.org/10.1145/3651890.3672219.
 
-Rateless IBLTs define for any set an infinite sequence of "coded symbols", each
-being the same size as a set element. For any two sets, their coded symbol
-sequences are sufficient for computing their symmetric difference, therefor
-enabling synchronization. The number of coded symbols needed is linear to the
-size of the symmetric difference, with the coefficient converging to 1.35 as
-the difference goes to infinitely large.
+Rateless IBLTs solve the "set reconciliation" problem: letting Alice and Bob,
+each holding a set of fixed-length bit strings, distributedly compute the
+symmetric difference of their sets with minimum communication and computation.
+
+For any set, Rateless IBLTs define an infinite sequence of "coded symbols",
+each being the same size as a set element. For any two sets, their coded symbol
+sequences alone are sufficient for computing their symmetric difference,
+therefore enabling reconciliation. The number of coded symbols needed is linear
+to the size of the symmetric difference and the coefficient converges to 1.35
+as the difference size goes to infinite.
+
+To run benchmarks that demonstrate the computation and communication efficieny
+of Rateless IBLTs, run
+  go test -bench .
 
 A good starting point is example_test.go, a self-contained example of using
 this package to synchronize two sets of integers. To try the example, run
   go test -v -run Example
-To run all tests, run
-  go test -v
+Documentation is available at https://pkg.go.dev/github.com/yangl1996/riblt.
 
-Implementations in other languages by other folks:
+Although this library is the artifact of a research project, it is of
+relatively high quality and should be suitable for deployment in production
+systems where workload given to the library is trusted, i.e., not injected by
+malicious actors.
+
+An imcomplete list of implementations in other languages by other folks:
 Rust https://github.com/Intersubjective/riblt-rust
 Rust https://github.com/samWighton/rateless_iblt
 C++  https://github.com/hoytech/riblet
