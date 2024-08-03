@@ -30,6 +30,66 @@ func newTestSymbol(i uint64) testSymbol {
 	return data
 }
 
+func BenchmarkEncodeAndDecode(bc *testing.B) {
+	cases := []struct {
+        name string
+        size int
+    }{
+        {"d=10", 10},
+        {"d=20", 20},
+        {"d=40", 40},
+        {"d=100", 100},
+        {"d=1000", 1000},
+        {"d=10000", 10000},
+        {"d=50000", 50000},
+        {"d=100000", 100000},
+    }
+	for _, tc := range cases {
+		bc.Run(tc.name, func(b *testing.B) {
+			b.SetBytes(testSymbolSize * int64(tc.size))
+			nlocal := tc.size/2
+			nremote := tc.size/2
+			ncommon := tc.size
+			ncw := 0
+			var nextId uint64
+			b.ResetTimer()
+			b.StopTimer()
+			for iter := 0; iter < b.N; iter++ {
+				enc := Encoder[testSymbol]{}
+				dec := Decoder[testSymbol]{}
+
+				for i := 0; i < nlocal; i++ {
+					s := newTestSymbol(nextId)
+					nextId += 1
+					dec.AddSymbol(s)
+				}
+				for i := 0; i < nremote; i++ {
+					s := newTestSymbol(nextId)
+					nextId += 1
+					enc.AddSymbol(s)
+				}
+				for i := 0; i < ncommon; i++ {
+					s := newTestSymbol(nextId)
+					nextId += 1
+					enc.AddSymbol(s)
+					dec.AddSymbol(s)
+				}
+				b.StartTimer()
+				for {
+					dec.AddCodedSymbol(enc.ProduceNextCodedSymbol())
+					dec.TryDecode()
+					ncw += 1
+					if dec.Decoded() {
+						break
+					}
+				}
+				b.StopTimer()
+			}
+			b.ReportMetric(float64(ncw)/float64(b.N * tc.size), "symbols/diff")
+		})
+	}
+}
+
 func TestEncodeAndDecode(t *testing.T) {
 	enc := Encoder[testSymbol]{}
 	dec := Decoder[testSymbol]{}
@@ -37,9 +97,9 @@ func TestEncodeAndDecode(t *testing.T) {
 	remote := make(map[uint64]struct{})
 
 	var nextId uint64
-	nlocal := 50000
-	nremote := 50000
-	ncommon := 100000
+	nlocal := 200000/2
+	nremote := 200000/2
+	ncommon := 200000
 	for i := 0; i < nlocal; i++ {
 		s := newTestSymbol(nextId)
 		nextId += 1
@@ -80,26 +140,5 @@ func TestEncodeAndDecode(t *testing.T) {
 	if !dec.Decoded() {
 		t.Errorf("decoder not marked as decoded")
 	}
-	t.Logf("%d codewords until fully decoded", ncw)
 }
 
-func BenchmarkEncoding(b *testing.B) {
-	n := 10000
-	m := 15000
-	enc := Encoder[testSymbol]{}
-	data := []testSymbol{}
-	for j := 0; j < n; j++ {
-		s := newTestSymbol(uint64(j))
-		data = append(data, s)
-	}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		enc.Reset()
-		for j := 0; j < n; j++ {
-			enc.AddSymbol(data[j])
-		}
-		for j := 0; j < m; j++ {
-			enc.ProduceNextCodedSymbol()
-		}
-	}
-}
