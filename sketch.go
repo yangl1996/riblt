@@ -10,8 +10,8 @@ type Sketch[T Symbol[T]] []CodedSymbol[T]
 // AddHashedSymbol inserts source symbol t to the set of which s is a sketch.
 func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
 	m := randomMapping{t.Hash, 0}
-	for int(m.lastIdx) < len(s) {
-		idx := m.lastIdx
+	for m.lastIndex < len(s) {
+		idx := m.lastIndex
 		s[idx].Symbol = s[idx].Symbol.XOR(t.Symbol)
 		s[idx].Count += 1
 		s[idx].Hash ^= t.Hash
@@ -23,8 +23,8 @@ func (s Sketch[T]) AddHashedSymbol(t HashedSymbol[T]) {
 // sketch.
 func (s Sketch[T]) RemoveHashedSymbol(t HashedSymbol[T]) {
 	m := randomMapping{t.Hash, 0}
-	for int(m.lastIdx) < len(s) {
-		idx := m.lastIdx
+	for m.lastIndex < len(s) {
+		idx := m.lastIndex
 		s[idx].Symbol = s[idx].Symbol.XOR(t.Symbol)
 		s[idx].Count -= 1
 		s[idx].Hash ^= t.Hash

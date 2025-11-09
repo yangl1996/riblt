@@ -72,7 +72,7 @@ func (e *codingWindow[T]) addHashedSymbol(t HashedSymbol[T]) {
 func (e *codingWindow[T]) addHashedSymbolWithMapping(t HashedSymbol[T], m randomMapping) {
 	e.symbols = append(e.symbols, t)
 	e.mappings = append(e.mappings, m)
-	e.queue = append(e.queue, symbolMapping{len(e.symbols) - 1, int(m.lastIdx)})
+	e.queue = append(e.queue, symbolMapping{len(e.symbols) - 1, m.lastIndex})
 	e.queue.fixTail()
 }
 
@@ -88,7 +88,7 @@ func (e *codingWindow[T]) applyWindow(cw CodedSymbol[T], direction int64) CodedS
 		cw = cw.apply(e.symbols[e.queue[0].sourceIdx], direction)
 		// generate the next mapping
 		nextMap := e.mappings[e.queue[0].sourceIdx].nextIndex()
-		e.queue[0].codedIdx = int(nextMap)
+		e.queue[0].codedIdx = nextMap
 		e.queue.fixHead()
 	}
 	e.nextIdx += 1

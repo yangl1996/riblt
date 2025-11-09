@@ -11,15 +11,14 @@ import (
 // with probability 1/(1+i/2), for any non-negative i.
 type randomMapping struct {
 	prng    uint64 // PRNG state
-	lastIdx uint64 // the last index the symbol was mapped to
+	lastIndex int    // the last index the symbol was mapped to
 }
 
 // nextIndex returns the next index in the sequence.
-func (s *randomMapping) nextIndex() uint64 {
+func (s *randomMapping) nextIndex() int {
 	// Update the PRNG. TODO: prove that the following update rule gives us
 	// high quality randomness, assuming the multiplier is coprime to 2^64.
-	r := s.prng * 0xda942042e4dd58b5
-	s.prng = r
+	s.prng *= 0xda942042e4dd58b5
 	// Calculate the difference from the current index (s.lastIdx) to the next
 	// index. See the paper for details. We use the approximated form
 	//   diff = (1.5+i)((1-u)^(-1/2)-1)
@@ -28,6 +27,6 @@ func (s *randomMapping) nextIndex() uint64 {
 	// our u actually comes from sampling a random uint64 r, and then dividing
 	// it by maxUint64, i.e., 1<<64. So we can replace (1-u)^(-1/2) with
 	//   1<<32 / sqrt(r).
-	s.lastIdx += uint64(math.Ceil((float64(s.lastIdx) + 1.5) * ((1<<32)/math.Sqrt(float64(r)+1) - 1)))
-	return s.lastIdx
+	s.lastIndex += int(math.Ceil((float64(s.lastIndex) + 1.5) * ((1<<32)/math.Sqrt(float64(s.prng)+1) - 1)))
+	return s.lastIndex
 }

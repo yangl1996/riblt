@@ -71,8 +71,8 @@ func (d *Decoder[T]) AddCodedSymbol(c CodedSymbol[T]) {
 
 func (d *Decoder[T]) applyNewSymbol(t HashedSymbol[T], direction int64) randomMapping {
 	m := randomMapping{t.Hash, 0}
-	for int(m.lastIdx) < len(d.cs) {
-		cidx := int(m.lastIdx)
+	for m.lastIndex < len(d.cs) {
+		cidx := m.lastIndex
 		d.cs[cidx] = d.cs[cidx].apply(t, direction)
 		// Check if the coded symbol is now decodable. We do not want to insert
 		// a decodable symbol into the list if we already did, otherwise we
