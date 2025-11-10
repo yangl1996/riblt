@@ -5,11 +5,16 @@ import (
 	"github.com/dchest/siphash"
 	"testing"
 	"unsafe"
+	"strconv"
 )
 
 const testSymbolSize = 64
 
 type testSymbol [testSymbolSize]byte
+
+func (d testSymbol) String() string {
+	return strconv.Itoa(int(binary.LittleEndian.Uint64(d[0:8])))
+}
 
 func (d testSymbol) XOR(t2 testSymbol) testSymbol {
 	dw := (*[testSymbolSize / 8]uint64)(unsafe.Pointer(&d))
